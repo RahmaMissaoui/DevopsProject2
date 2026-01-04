@@ -1,6 +1,6 @@
 # DEFINE ALL YOUR VARIABLES HERE
 
-instance_type = "t3.micro"
+instance_type = "t3.small"
 ami           = "ami-0ecb62995f68bb549"   # Ubuntu 24.04
 key_name      = "vockey"                     
 volume_size   = 30

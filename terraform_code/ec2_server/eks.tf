@@ -79,7 +79,7 @@ module "eks" {
   # Node group: Reuse LabRole ARN + profile; small scale for lab budget/limits
   eks_managed_node_groups = {
     default = {
-      instance_types = ["t3.micro"]  # 2 vCPUs; fits 32 vCPU lab cap
+      instance_types = ["t3.small"]  # 2 vCPUs; fits 32 vCPU lab cap
 
       desired_size = 1  # Start minimal (~$0.05/hr)
       min_size     = 1
