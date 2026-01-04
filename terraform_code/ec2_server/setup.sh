@@ -26,6 +26,12 @@ sudo chmod 777 /var/run/docker.sock
 # sudo newgrp docker
 docker --version
 
+# Install Grafana (as container)
+"docker run -d --name grafana -p 3090:3090 grafana/grafana",
+
+# Install Prometheus (as container)
+"docker run -d --name prometheus -p 9090:9090 prom/prometheus",
+
 # Install Sonarqube (as image)
 docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 
@@ -67,3 +73,8 @@ echo "Jenkins Initial Password: $pass"
 echo
 echo "Access SonarQube Server here --> http://$ip:$port2"
 echo "SonarQube Username & Password: admin"
+echo
+echo 'Access Grafana Server here --> http://'$ip':3000'",
+echo 'Grafana Username & Password: admin / admin'",
+echo
+echo 'Access Prometheus Server here --> http://'$ip':9090'",
