@@ -27,7 +27,7 @@ sudo chmod 777 /var/run/docker.sock
 docker --version
 
 # Install Grafana (as container)
-"docker run -d --name grafana -p 3090:3090 grafana/grafana",
+"docker run -d --name grafana -p 3000:3000 grafana/grafana",
 
 # Install Prometheus (as container)
 "docker run -d --name prometheus -p 9090:9090 prom/prometheus",

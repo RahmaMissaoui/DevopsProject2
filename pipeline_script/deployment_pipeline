@@ -6,17 +6,15 @@ pipeline {
     }
 
     parameters {
-        string(name: 'CLUSTER_NAME', defaultValue: 'amazon-prime-cluster', description: 'Enter your EKS cluster name')
+        string(name: 'CLUSTER_NAME', defaultValue: 'JENKINS-SERVER-2-eks', description: 'Enter your EKS cluster name')
     }
 
     stages {
+        
         stage("Login to EKS") {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'access-key', variable: 'AWS_ACCESS_KEY'),
-                                     string(credentialsId: 'secret-key', variable: 'AWS_SECRET_KEY')]) {
-                        sh "aws eks --region us-east-1 update-kubeconfig --name ${params.CLUSTER_NAME}"
-                    }
+                    sh "aws eks --region us-east-1 update-kubeconfig --name ${params.CLUSTER_NAME}"
                 }
             }
         }

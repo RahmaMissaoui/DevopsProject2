@@ -16,6 +16,8 @@ resource "aws_security_group" "my-sg" {
   name        = "JENKINS-SERVER-SG"
   description = "Jenkins Server Ports"
   
+  # vpc_id = module.vpc.vpc_id
+
   # Port 22 is required for SSH Access
   ingress {
     description     = "SSH Port"
@@ -140,6 +142,9 @@ resource "aws_instance" "my-ec2" {
   key_name      = var.key_name        
   vpc_security_group_ids = [aws_security_group.my-sg.id]
 
+  # subnet_id = element(module.vpc.public_subnets, 0)
+  # associate_public_ip_address = true
+
   iam_instance_profile = "LabInstanceProfile"
   
   root_block_device {
@@ -183,7 +188,7 @@ resource "aws_instance" "my-ec2" {
       "docker --version",
 
       # Install Grafana (as container)
-      "docker run -d --name grafana -p 3090:3090 grafana/grafana",
+      "docker run -d --name grafana -p 3000:3000 grafana/grafana",
 
       # Install Prometheus (as container)
       "docker run -d --name prometheus -p 9090:9090 prom/prometheus",
