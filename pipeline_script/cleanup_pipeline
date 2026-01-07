@@ -11,31 +11,31 @@ pipeline {
 
     stages {
 
-        // stage("Login to EKS") {
-        //     steps {
-        //         script {
-        //             withCredentials([string(credentialsId: 'access-key', variable: 'AWS_ACCESS_KEY'),
-        //                              string(credentialsId: 'secret-key', variable: 'AWS_SECRET_KEY')]) {
-        //                 sh "aws eks --region us-east-1 update-kubeconfig --name ${params.CLUSTER_NAME}"
-        //             }
-        //         }
-        //     }
-        // }
         stage("Login to EKS") {
             steps {
                 script {
-                    sh "aws eks --region us-east-1 update-kubeconfig --name ${params.CLUSTER_NAME}"
+                    withCredentials([string(credentialsId: 'access-key', variable: 'AWS_ACCESS_KEY'),
+                                     string(credentialsId: 'secret-key', variable: 'AWS_SECRET_KEY')]) {
+                        sh "aws eks --region us-east-1 update-kubeconfig --name ${params.CLUSTER_NAME}"
+                    }
                 }
             }
         }
+        // stage("Login to EKS") {
+        //     steps {
+        //         script {
+        //             sh "aws eks --region us-east-1 update-kubeconfig --name ${params.CLUSTER_NAME}"
+        //         }
+        //     }
+        // }
         
         stage('Cleanup K8s Resources') {
             steps {
                 script {
                     // Step 1: Delete services and deployments
-                    sh 'kubectl delete svc kubernetes || true'
-                    sh 'kubectl delete deploy pandacloud-app || true'
-                    sh 'kubectl delete svc pandacloud-app || true'
+                    sh 'kubectl delete svc kubernetes || true'   //
+                    sh 'kubectl delete deploy devops-app || true'
+                    sh 'kubectl delete svc devops-app || true'
 
                     // Step 2: Delete ArgoCD installation and namespace
                     sh 'kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml || true'
@@ -44,6 +44,7 @@ pipeline {
                     // Step 3: List and uninstall Helm releases in prometheus namespace
                     sh 'helm list -n prometheus || true'
                     sh 'helm uninstall kube-stack -n prometheus || true'
+                    //sh 'helm uninstall stable -n prometheus || true'
                     
                     // Step 4: Delete prometheus namespace
                     sh 'kubectl delete namespace prometheus || true'
@@ -60,7 +61,7 @@ pipeline {
                 script {
                     // Step 1: Delete ECR Repository
                     sh '''
-                    aws ecr delete-repository --repository-name amazon-prime --region us-east-1 --force
+                    aws ecr delete-repository --repository-name devops-project-2 --region us-east-1 --force
                     '''
 
                     // Step 2: Delete KMS Keys

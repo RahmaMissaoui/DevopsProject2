@@ -1,0 +1,54 @@
+Terraform Setup (in terraform_code/ec2_server):
+terraform init
+First apply: Comment kubernetes.tf, set manage_aws_auth_configmap = false in eks.tf, then terraform apply -auto-approve.
+Second apply: Uncomment kubernetes.tf, set manage_aws_auth_configmap = true, then terraform apply -auto-approve.
+Outputs will give EC2 public IP and Jenkins password.
+
+Access EC2/Jenkins:
+SSH: ssh -i vockey.pem ubuntu@<public-ip> (download key from lab if needed, per labLearner.txt).
+Jenkins: http://<public-ip>:8080, unlock with password from /var/lib/jenkins/secrets/initialAdminPassword.
+SonarQube: http://<public-ip>:9000 (admin/admin).
+In Jenkins: Add tools (JDK/NodeJS as in video), credentials (AWS keys as access-key/secret-key, Sonar token as sonar-token).
+
+Run Jenkins Pipelines:
+Build build_pipeline: Inputs: ECR_REPO_NAME=devops-project-2, AWS_ACCOUNT_ID=637423542227. This builds/pushes image.
+Build deployment_pipeline: Input: CLUSTER_NAME=JENKINS-SERVER-2-eks. This deploys ArgoCD/Prom/Grafana.
+If you have deployment_eks: Run it to apply deployment.yaml/service.yaml directly (for testing).
+Check builds succeed—no errors in console output.
+
+Get URLs/Creds:
+In SSH session: chmod +x access.sh; ./access.sh
+Access:
+ArgoCD: http://<argo_url> (admin / password from output).
+Prometheus: http://<prometheus_url>:9090
+Grafana: http://<grafana_url> (admin / password from output).
+
+
+Deploy App via ArgoCD:
+Login to ArgoCD UI.
+Create New App:
+Application Name: devops-app
+Project: default
+Sync Policy: Automatic
+Repo URL: https://github.com/RahmaMissaoui/DevopsProject2.git
+Revision: HEAD
+Path: k8s_files (folder with YAMLs)
+Cluster: https://kubernetes.default.svc (in-cluster)
+Namespace: default
+
+Sync the app. If it fails, check ArgoCD logs: kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server.
+Verify: kubectl get pods,svc -n default (should show devops-app pod and LoadBalancer service).
+
+Fix/Check Grafana No Data:
+In Prometheus UI: Go to Targets—ensure node-exporter, kubelet, etc., are UP (green).
+If not: kubectl get daemonset -n prometheus (check node-exporter). Logs: kubectl logs -n prometheus <node-exporter-pod>.
+In Grafana: Add Prometheus data source if missing (URL: http://stable-kube-prometheus-sta-prometheus.prometheus:9090).
+Import ID 1860. If still N/A: Wait 5-10 mins, refresh. Or deploy your app first (adds workload metrics).
+If no fix: Lab restrictions—try a simpler dashboard (e.g., ID 6417 for cluster overview).
+
+Debug/Verify:
+In SSH: aws eks update-kubeconfig --region us-east-1 --name JENKINS-SERVER-2-eks
+Check pods: kubectl get pods --all-namespaces (all should be Running).
+App access: Get LoadBalancer URL from kubectl get svc devops-app—http://<external-ip>:3000.
+If issues: Check EKS node logs in CloudWatch (enable if needed), or Terraform state for misconfigs.
+Budget: Stop EKS nodes manually if idle: kubectl drain <node> --ignore-daemonsets; kubectl delete node <node> (restart via Terraform).

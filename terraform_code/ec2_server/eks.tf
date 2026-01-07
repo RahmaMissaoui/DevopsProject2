@@ -24,9 +24,9 @@ module "eks" {
     default = {
       instance_types = ["t3.medium"]
 
-      desired_size = 1
-      min_size     = 1
-      max_size     = 2
+      desired_size = 3
+      min_size     = 2
+      max_size     = 4
 
       # Use LabRole for nodes too
       create_iam_role           = false
@@ -42,7 +42,7 @@ module "eks" {
   }
 
   # AWS Auth mapping - Map LabRole to cluster-admin
-  manage_aws_auth_configmap = true
+  manage_aws_auth_configmap = true #false
   aws_auth_roles = [
     {
       rolearn  = "arn:aws:iam::637423542227:role/LabRole"
